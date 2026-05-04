@@ -11,7 +11,7 @@ Production-grade exact replica of foundit.in — India's leading job portal.
 - **Forms**: React Hook Form + Zod validation
 - **HTTP Client**: Axios with JWT interceptors
 - **Icons**: Lucide React
-- **Deployment**: TBD
+- **Deployment**: Local development only
 
 ## Brand Colors (Exact Foundit Values)
 ```
