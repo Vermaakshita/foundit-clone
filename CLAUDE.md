@@ -7,7 +7,7 @@ Production-grade exact replica of foundit.in — India's leading job portal.
 - **Backend**: FastAPI (Python 3.11) — runs on port 8000
 - **Frontend**: React 18 + TypeScript + Tailwind CSS + shadcn/ui — runs on port 5173
 - **Database**: Supabase (PostgreSQL + Auth + Storage + Realtime)
-- **State**: TanStack Query (React Query v5) + Zustand
+- **State**: TanStack Query (React Query v5) + AuthContext (React Context API for auth state)
 - **Forms**: React Hook Form + Zod validation
 - **HTTP Client**: Axios with JWT interceptors
 - **Icons**: Lucide React
