@@ -23,9 +23,17 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 # ── env vars must be set BEFORE any app module is imported ──────────────────
+# The supabase client validates its API key against a JWT-shaped regex at
+# construction time, so the placeholder below must look like a JWT even though
+# it is cryptographically meaningless — all real Supabase calls are mocked.
+_FAKE_JWT = (
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ".eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYwMDAwMDAwMH0"
+    ".testsignaturetestsignaturetestsignature"
+)
 os.environ.setdefault("SUPABASE_URL", "https://test.supabase.co")
-os.environ.setdefault("SUPABASE_ANON_KEY", "test-anon-key")
-os.environ.setdefault("SUPABASE_SERVICE_KEY", "test-service-key")
+os.environ.setdefault("SUPABASE_ANON_KEY", _FAKE_JWT)
+os.environ.setdefault("SUPABASE_SERVICE_KEY", _FAKE_JWT)
 os.environ.setdefault("SECRET_KEY", "test-secret-key-that-is-at-least-32-chars-long!")
 os.environ.setdefault("ALGORITHM", "HS256")
 os.environ.setdefault("ACCESS_TOKEN_EXPIRE_MINUTES", "30")

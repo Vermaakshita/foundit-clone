@@ -108,14 +108,14 @@ class TestJobSearch:
         """[J2] keyword query param is applied."""
         sb = client._mock_sb
 
-        # companies lookup returns empty, then jobs lookup returns SAMPLE_JOB
-        company_chain = _chain()
-        company_chain.execute.return_value = MagicMock(data=[], count=0)
+        # Router calls table("jobs") first (built as the main query),
+        # then table("companies") inline inside the keyword branch.
         jobs_chain = _chain()
         jobs_chain.execute.return_value = MagicMock(data=[SAMPLE_JOB], count=1)
+        company_chain = _chain()
+        company_chain.execute.return_value = MagicMock(data=[], count=0)
 
-        # table() is called twice: once for companies, once for jobs
-        sb.table.side_effect = [company_chain, jobs_chain]
+        sb.table.side_effect = [jobs_chain, company_chain]
 
         response = await client.get("/api/jobs?keyword=Python")
         assert response.status_code == 200
