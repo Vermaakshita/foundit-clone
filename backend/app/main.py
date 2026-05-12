@@ -1,14 +1,23 @@
-from fastapi import FastAPI
+import logging
+import time
+import uuid
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
-import os
 
-# Load environment variables from .env file before importing app modules
 load_dotenv()
 
 from app.config import settings
 from app.routers import auth, jobs, users, companies, applications, saved_jobs, job_alerts, dashboard, skills
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("foundit.api")
 
 app = FastAPI(
     title="Foundit Clone API",
@@ -40,6 +49,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ---------------------------------------------------------------------------
+# Request Logging Middleware
+# ---------------------------------------------------------------------------
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    request_id = str(uuid.uuid4())[:8]
+    start = time.perf_counter()
+    client_ip = request.client.host if request.client else "-"
+    logger.info("[%s] -> %s %s from %s", request_id, request.method, request.url.path, client_ip)
+    try:
+        response = await call_next(request)
+    except Exception:
+        elapsed_ms = (time.perf_counter() - start) * 1000
+        logger.exception("[%s] !! %s %s failed after %.1fms", request_id, request.method, request.url.path, elapsed_ms)
+        raise
+    elapsed_ms = (time.perf_counter() - start) * 1000
+    logger.info("[%s] <- %s %s %d (%.1fms)", request_id, request.method, request.url.path, response.status_code, elapsed_ms)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
 
 # ---------------------------------------------------------------------------
 # Routers
@@ -122,6 +153,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
     return JSONResponse(
         status_code=500,
         content={
