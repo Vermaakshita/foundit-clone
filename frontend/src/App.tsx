@@ -14,6 +14,7 @@ import Prep from './pages/Prep'
 import Learn from './pages/Learn'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import NotFound from './pages/NotFound'
 import DashboardLayout from './components/layout/DashboardLayout'
 
 // Seeker pages
@@ -105,8 +106,8 @@ function AppRoutes() {
         <Route path="/employer/jobs/:jobId/applicants" element={<Applicants />} />
       </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* 404 — must be the last route */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
